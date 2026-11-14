@@ -20,6 +20,10 @@ DSAI5102_JobFraud_Reproducible_Workpack/
     Group17_Report.pdf
     Group17_Slides.pptx
     Group17_Slides.pdf
+  docs/
+    Project_Learning_Guide_CN.md
+    Project_Learning_Guide_CN.docx
+    Project_Learning_Guide_CN.pdf
   data/
     raw/
       fake_job_postings.csv
@@ -53,6 +57,18 @@ DSAI5102_JobFraud_Reproducible_Workpack/
 
 The report uses Times New Roman, three-line tables, continuous section flow,
 black text, coloured figures, and page numbers only in the footer.
+
+## Chinese learning guide
+
+`docs/Project_Learning_Guide_CN.pdf` explains the project principles and
+application in Chinese. It covers the business problem, data leakage, TF-IDF,
+three model families, validation strategy, PR-AUC, fixed review budgets,
+bootstrap intervals, error analysis, deployment recommendations, and the
+reproduction workflow.
+
+- Markdown source: `docs/Project_Learning_Guide_CN.md`
+- Editable document: `docs/Project_Learning_Guide_CN.docx`
+- PDF: `docs/Project_Learning_Guide_CN.pdf`
 
 ## Pipeline
 
