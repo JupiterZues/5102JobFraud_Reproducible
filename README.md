@@ -186,6 +186,10 @@ bash 04_app/run_web.sh
 
 The command-line interface is available at `04_app/cli.py`.
 
+The repository also contains `JobGuard.html`, a fully self-contained offline
+version. Download that one file and double-click it; no server or Python
+installation is needed.
+
 ## Data source
 
 The source dataset is the Employment Scam Aegean Dataset (EMSCAD), distributed
