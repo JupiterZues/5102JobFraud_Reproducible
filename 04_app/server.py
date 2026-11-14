@@ -382,8 +382,9 @@ async def fetch_url(payload: URLRequest) -> dict:
         raise HTTPException(
             status_code=422,
             detail=(
-                "BOSS直聘 redirected this request to a security verification "
-                "page. Open the job in a browser and paste the job text here."
+                "BOSS直聘要求完成浏览器安全验证，服务器无法读取职位正文。"
+                "请在自己的浏览器打开该职位，复制岗位职责、任职要求、"
+                "公司介绍和福利，然后粘贴到上方“快速粘贴”区域。"
             ),
         )
     result = extract_job_posting(page)
