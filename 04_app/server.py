@@ -368,6 +368,24 @@ async def predict(payload: PredictionRequest) -> dict:
 @app.post("/api/fetch-url")
 async def fetch_url(payload: URLRequest) -> dict:
     final_url, page = await fetch_public_page(payload.url)
+    final_host = (urlparse(final_url).hostname or "").lower()
+    final_path = (urlparse(final_url).path or "").lower()
+    lowered_page = page.casefold()
+    if (
+        "zhipin.com" in final_host
+        and (
+            "security" in final_path
+            or "/passport/" in final_path
+            or "正在加载中" in lowered_page
+        )
+    ):
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "BOSS直聘 redirected this request to a security verification "
+                "page. Open the job in a browser and paste the job text here."
+            ),
+        )
     result = extract_job_posting(page)
     result["final_url"] = final_url
     return result
