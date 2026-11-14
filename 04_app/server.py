@@ -12,6 +12,7 @@ from urllib.parse import urljoin, urlparse
 import httpx
 import pandas as pd
 from bs4 import BeautifulSoup
+from bs4.element import Tag
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
@@ -40,6 +41,39 @@ PRIORITY_CODES = {
     "Low - top 20%": "low",
     "Routine review": "routine",
 }
+
+JOB_PAGE_MARKERS = [
+    "job description",
+    "responsibilities",
+    "requirements",
+    "qualifications",
+    "experience",
+    "salary",
+    "apply",
+    "hiring",
+    "岗位职责",
+    "职位描述",
+    "工作职责",
+    "任职要求",
+    "岗位要求",
+    "工作经验",
+    "学历",
+    "薪资",
+    "福利",
+    "招聘",
+]
+
+KNOWN_JOB_SITES = [
+    "boss直聘",
+    "zhipin",
+    "linkedin",
+    "indeed",
+    "glassdoor",
+    "51job",
+    "前程无忧",
+    "智联招聘",
+    "monster",
+]
 
 
 class PredictionRequest(BaseModel):
@@ -133,6 +167,144 @@ async def fetch_public_page(url: str) -> tuple[str, str]:
     raise HTTPException(status_code=400, detail="Too many redirects.")
 
 
+def text_content(value) -> str:
+    if isinstance(value, dict):
+        value = value.get("name") or value.get("value") or ""
+    if isinstance(value, list):
+        return "; ".join(filter(None, (text_content(item) for item in value)))
+    if not isinstance(value, str):
+        return ""
+    return " ".join(BeautifulSoup(value, "lxml").get_text(" ", strip=True).split())
+
+
+def iter_json_nodes(value):
+    if isinstance(value, dict):
+        yield value
+        graph = value.get("@graph")
+        if graph:
+            yield from iter_json_nodes(graph)
+    elif isinstance(value, list):
+        for item in value:
+            yield from iter_json_nodes(item)
+
+
+def find_job_json_ld(soup: BeautifulSoup) -> dict:
+    for script in soup.find_all("script", attrs={"type": "application/ld+json"}):
+        raw = script.string or script.get_text()
+        if not raw:
+            continue
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            continue
+        for node in iter_json_nodes(data):
+            node_type = node.get("@type")
+            types = node_type if isinstance(node_type, list) else [node_type]
+            if any(str(item).lower() == "jobposting" for item in types):
+                return node
+    return {}
+
+
+def clean_page_title(title: str, site_name: str) -> str:
+    title = " ".join(title.split()).strip()
+    site_lower = site_name.casefold().strip()
+    for separator in [" | ", " - ", " — ", " – ", " _ "]:
+        if separator not in title:
+            continue
+        parts = title.rsplit(separator, 1)
+        suffix = parts[-1].casefold().strip()
+        if suffix == site_lower or any(site in suffix for site in KNOWN_JOB_SITES):
+            title = parts[0].strip()
+            break
+    if site_lower and title.casefold().strip() == site_lower:
+        return ""
+    return title
+
+
+def extract_job_posting(page: str) -> dict:
+    soup = BeautifulSoup(page, "lxml")
+    json_ld = find_job_json_ld(soup)
+    for tag in soup(
+        ["script", "style", "noscript", "nav", "footer", "form", "svg", "aside"]
+    ):
+        tag.decompose()
+
+    site_meta = soup.find("meta", attrs={"property": "og:site_name"})
+    site_name = site_meta.get("content", "") if isinstance(site_meta, Tag) else ""
+
+    title = text_content(json_ld.get("title") or json_ld.get("name"))
+    company_profile = text_content(json_ld.get("hiringOrganization"))
+    job_description = text_content(json_ld.get("description"))
+    requirements = "; ".join(
+        filter(
+            None,
+            [
+                text_content(json_ld.get("qualifications")),
+                text_content(json_ld.get("experienceRequirements")),
+                text_content(json_ld.get("educationRequirements")),
+                text_content(json_ld.get("skills")),
+            ],
+        )
+    )
+    benefits = text_content(json_ld.get("jobBenefits"))
+    source = "jsonld" if json_ld else "html"
+
+    if not title:
+        for heading in soup.find_all(["h1", "h2"]):
+            candidate = " ".join(heading.get_text(" ", strip=True).split())
+            candidate = clean_page_title(candidate, site_name)
+            if 3 <= len(candidate) <= 220:
+                title = candidate
+                break
+
+    og_title = soup.find("meta", attrs={"property": "og:title"})
+    if not title and isinstance(og_title, Tag):
+        title = clean_page_title(og_title.get("content", ""), site_name)
+    if not title and soup.title:
+        title = clean_page_title(soup.title.get_text(" ", strip=True), site_name)
+    title = clean_page_title(title, site_name)
+
+    root = soup.find("main") or soup.find("article") or soup.body or soup
+    page_text = " ".join(root.get_text(" ", strip=True).split())
+    description = job_description or page_text
+
+    minimum_description = 20 if source == "jsonld" else 250
+    if not title or len(description) < minimum_description:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "Could not identify a reliable job-detail page. "
+                "Paste the job text directly instead."
+            ),
+        )
+
+    combined = f"{title} {description}".casefold()
+    marker_count = sum(marker.casefold() in combined for marker in JOB_PAGE_MARKERS)
+    if source == "html" and marker_count < 2:
+        raise HTTPException(
+            status_code=422,
+            detail=(
+                "The page does not look like a job-detail post. "
+                "Paste the job text directly instead."
+            ),
+        )
+
+    return {
+        "title": title[:300],
+        "company_profile": company_profile[:500],
+        "description": description[:20_000],
+        "requirements": requirements[:8_000],
+        "benefits": benefits[:4_000],
+        "quality": "high" if source == "jsonld" else "medium",
+        "source": source,
+        "warning": (
+            ""
+            if source == "jsonld"
+            else "The page was extracted from general HTML. Verify the title and text before assessment."
+        ),
+    }
+
+
 @app.get("/", include_in_schema=False)
 async def index() -> FileResponse:
     return FileResponse(STATIC_DIR / "index.html")
@@ -182,48 +354,9 @@ async def predict(payload: PredictionRequest) -> dict:
 @app.post("/api/fetch-url")
 async def fetch_url(payload: URLRequest) -> dict:
     final_url, page = await fetch_public_page(payload.url)
-    soup = BeautifulSoup(page, "lxml")
-
-    for tag in soup(
-        ["script", "style", "noscript", "nav", "footer", "form", "svg"]
-    ):
-        tag.decompose()
-
-    title = ""
-    if soup.title:
-        title = " ".join(soup.title.get_text(" ", strip=True).split())
-    meta_description = soup.find(
-        "meta",
-        attrs={"name": lambda value: value and value.lower() == "description"},
-    )
-    company_meta = soup.find(
-        "meta",
-        attrs={"property": "og:site_name"},
-    )
-
-    root = soup.find("main") or soup.find("article") or soup.body or soup
-    page_text = " ".join(root.get_text(" ", strip=True).split())
-    if len(page_text) < 40:
-        raise HTTPException(
-            status_code=400,
-            detail="The page did not expose enough readable text.",
-        )
-
-    return {
-        "final_url": final_url,
-        "title": title[:300],
-        "company_profile": (
-            company_meta.get("content", "")[:500]
-            if company_meta
-            else ""
-        ),
-        "description": page_text[:20_000],
-        "meta_description": (
-            meta_description.get("content", "")[:2_000]
-            if meta_description
-            else ""
-        ),
-    }
+    result = extract_job_posting(page)
+    result["final_url"] = final_url
+    return result
 
 
 @app.post("/api/batch")

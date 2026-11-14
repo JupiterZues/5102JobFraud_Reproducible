@@ -23,6 +23,7 @@ const translations = {
     url_reading: "正在读取招聘页面……",
     url_success: "已读取页面文本，正在评估……",
     url_failed: "链接读取失败，请粘贴正文后重试。",
+    url_verify: "页面正文已提取，但未找到完整职位结构化数据。请核对标题和正文，再点击评估。",
     field_title: "职位标题",
     field_company: "公司介绍",
     field_description: "职位描述",
@@ -112,6 +113,7 @@ const translations = {
     url_reading: "Reading the job page…",
     url_success: "Page text loaded. Assessing…",
     url_failed: "Could not read that URL. Paste the page text instead.",
+    url_verify: "Page text was extracted without complete job structured data. Verify the title and content before assessing.",
     field_title: "Job title",
     field_company: "Company profile",
     field_description: "Job description",
@@ -332,8 +334,12 @@ $("#fetch-url").addEventListener("click", async () => {
     $("#description").value = data.description || "";
     $("#requirements").value = "";
     $("#benefits").value = "";
-    showQuickStatus(t("url_success"));
-    $("#assess-form").requestSubmit();
+    if (data.quality === "medium") {
+      showQuickStatus(t("url_verify"));
+    } else {
+      showQuickStatus(t("url_success"));
+      $("#assess-form").requestSubmit();
+    }
   } catch (error) {
     showQuickStatus(`${t("url_failed")} ${error.message}`, true);
   } finally {
