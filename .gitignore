@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.ipynb_checkpoints/
+*.zip
+
+# Large data files are regenerated from the public source dataset.
+data/raw/*
+data/intermediate/*
+data/processed/*
+
+# Local editor and OS artifacts.
+.idea/
+.vscode/

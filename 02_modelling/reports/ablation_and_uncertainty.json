@@ -1,0 +1,118 @@
+{
+  "bootstrap_replicates": 2000,
+  "random_state": 42,
+  "review_budget": 0.05,
+  "ablation": [
+    {
+      "configuration": "unigram",
+      "ngram_range": "(1, 1)",
+      "vocabulary_size": 25805,
+      "cv_average_precision_mean": 0.83698949701391,
+      "cv_average_precision_std": 0.011541932639170003,
+      "validation_average_precision": 0.8822477151271587,
+      "validation_roc_auc": 0.9770751783274519,
+      "validation_precision_at_5pct": 0.7542372881355932,
+      "validation_recall_at_5pct": 0.839622641509434,
+      "fit_seconds": 4.110398910008371
+    },
+    {
+      "configuration": "unigram_bigram",
+      "ngram_range": "(1, 2)",
+      "vocabulary_size": 60000,
+      "cv_average_precision_mean": 0.8608021631351264,
+      "cv_average_precision_std": 0.007517888797650908,
+      "validation_average_precision": 0.8959513763803545,
+      "validation_roc_auc": 0.9851680175687116,
+      "validation_precision_at_5pct": 0.7711864406779662,
+      "validation_recall_at_5pct": 0.8584905660377359,
+      "fit_seconds": 8.934460178017616
+    }
+  ],
+  "uncertainty": [
+    {
+      "split": "validation",
+      "metric": "average_precision",
+      "point_estimate": 0.8959513763803545,
+      "bootstrap_mean": 0.897021123890431,
+      "ci_95_lower": 0.8470642701349641,
+      "ci_95_upper": 0.9404637080028702,
+      "valid_replicates": 2000,
+      "replicates_requested": 2000
+    },
+    {
+      "split": "validation",
+      "metric": "roc_auc",
+      "point_estimate": 0.9851680175687116,
+      "bootstrap_mean": 0.9852073366580743,
+      "ci_95_lower": 0.9746680912267527,
+      "ci_95_upper": 0.993348730202602,
+      "valid_replicates": 2000,
+      "replicates_requested": 2000
+    },
+    {
+      "split": "validation",
+      "metric": "recall_at_5pct",
+      "point_estimate": 0.8584905660377359,
+      "bootstrap_mean": 0.8572169867303442,
+      "ci_95_lower": 0.7903013582342954,
+      "ci_95_upper": 0.9255515117581186,
+      "valid_replicates": 2000,
+      "replicates_requested": 2000
+    },
+    {
+      "split": "validation",
+      "metric": "precision_at_5pct",
+      "point_estimate": 0.7711864406779662,
+      "bootstrap_mean": 0.7703644067796611,
+      "ci_95_lower": 0.652542372881356,
+      "ci_95_upper": 0.8898305084745762,
+      "valid_replicates": 2000,
+      "replicates_requested": 2000
+    },
+    {
+      "split": "test",
+      "metric": "average_precision",
+      "point_estimate": 0.9465937195781418,
+      "bootstrap_mean": 0.9467027318405651,
+      "ci_95_lower": 0.915406031149468,
+      "ci_95_upper": 0.9712967270284909,
+      "valid_replicates": 2000,
+      "replicates_requested": 2000
+    },
+    {
+      "split": "test",
+      "metric": "roc_auc",
+      "point_estimate": 0.9966067897717752,
+      "bootstrap_mean": 0.9966104131757146,
+      "ci_95_lower": 0.9945455357068086,
+      "ci_95_upper": 0.9983153487462443,
+      "valid_replicates": 2000,
+      "replicates_requested": 2000
+    },
+    {
+      "split": "test",
+      "metric": "recall_at_5pct",
+      "point_estimate": 0.8867924528301887,
+      "bootstrap_mean": 0.8973959201739994,
+      "ci_95_lower": 0.8290598290598291,
+      "ci_95_upper": 0.9634256538348515,
+      "valid_replicates": 2000,
+      "replicates_requested": 2000
+    },
+    {
+      "split": "test",
+      "metric": "precision_at_5pct",
+      "point_estimate": 0.7966101694915254,
+      "bootstrap_mean": 0.8042754237288137,
+      "ci_95_lower": 0.6864406779661016,
+      "ci_95_upper": 0.9152542372881356,
+      "valid_replicates": 2000,
+      "replicates_requested": 2000
+    }
+  ],
+  "notes": [
+    "The ablation uses training and validation data only.",
+    "The selected model and test predictions were not changed.",
+    "Bootstrap intervals resample records independently within each split."
+  ]
+}

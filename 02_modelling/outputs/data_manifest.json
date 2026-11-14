@@ -1,0 +1,34 @@
+{
+  "version": "final-v1",
+  "generated_at_utc": "2026-11-14T11:18:59.806005+00:00",
+  "random_state": 42,
+  "source_dataset": "EMSCAD via Kaggle Real / Fake Job Posting Prediction",
+  "source_url": "https://www.kaggle.com/datasets/shivamb/real-or-fake-fake-jobposting-prediction",
+  "original_paper_doi": "10.3390/fi9010006",
+  "license": "CC0: Public Domain (Kaggle dataset metadata)",
+  "cleaning": {
+    "raw_rows": 17880,
+    "removed_empty_text": 0,
+    "removed_exact_duplicates": 2001,
+    "removed_canonical_duplicates": 163,
+    "final_rows": 15716,
+    "final_class_counts": {
+      "0": 15008,
+      "1": 708
+    }
+  },
+  "files": {
+    "raw": {
+      "path": "data/raw/fake_job_postings.csv",
+      "sha256": "59253295129d8b6a27607f9904f7d4ddf4dbb0ee35e079c7eb51b58b5e62bf60"
+    },
+    "clean": {
+      "path": "data/processed/jobs_clean.csv",
+      "sha256": "4ed03ce87d614e3437253c1583325b9ecbccee86194ccc9da9b5f52edf09f530"
+    },
+    "baseline_predictions": {
+      "path": "02_modelling/outputs/baseline_predictions.csv",
+      "sha256": "0885825036fd3be864d4c6fdd0a126fda2fa92b7d4004681dd1de1d557862692"
+    }
+  }
+}

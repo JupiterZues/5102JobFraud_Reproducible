@@ -1,0 +1,40 @@
+{
+  "selected_model": "linear_svm",
+  "selection_metric": "validation_average_precision",
+  "best_parameters": {
+    "classifier__C": 1.0
+  },
+  "training_rows": 11001,
+  "validation_rows": 2357,
+  "test_rows": 2358,
+  "validation_average_precision": 0.8959513763803545,
+  "validation_roc_auc": 0.9851680175687116,
+  "validation_review_budget": [
+    {
+      "review_budget": 0.05,
+      "flagged_count": 118,
+      "true_positives": 91,
+      "precision": 0.7711864406779662,
+      "recall": 0.8584905660377359
+    },
+    {
+      "review_budget": 0.1,
+      "flagged_count": 236,
+      "true_positives": 99,
+      "precision": 0.4194915254237288,
+      "recall": 0.9339622641509434
+    },
+    {
+      "review_budget": 0.2,
+      "flagged_count": 472,
+      "true_positives": 102,
+      "precision": 0.21610169491525424,
+      "recall": 0.9622641509433962
+    }
+  ],
+  "notes": [
+    "Model selection used the validation split only.",
+    "Test predictions were generated once and were not used for tuning.",
+    "Scores are decision-function values; only their ranking is used."
+  ]
+}
