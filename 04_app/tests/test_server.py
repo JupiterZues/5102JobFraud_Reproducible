@@ -48,3 +48,11 @@ def test_batch_prediction() -> None:
     data = response.json()
     assert data["count"] == 2
     assert data["rows"][0]["review_rank"] == 1
+
+
+def test_private_url_is_blocked() -> None:
+    response = client.post(
+        "/api/fetch-url",
+        json={"url": "http://127.0.0.1:8501/"},
+    )
+    assert response.status_code == 400

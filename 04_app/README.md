@@ -6,6 +6,8 @@ frozen Linear SVM model and ranks job postings for human review.
 ## Features
 
 - Score one job posting from five text fields.
+- Paste a full job advertisement for one-click text recognition.
+- Paste a public job URL in the hosted version and extract readable page text.
 - Show a review priority based on validation-set top-k cutoffs.
 - Upload a batch CSV and download ranked results.
 - Command-line scoring for one text or a CSV.

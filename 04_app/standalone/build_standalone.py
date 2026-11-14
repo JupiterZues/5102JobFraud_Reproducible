@@ -63,6 +63,17 @@ def build() -> Path:
         html_text,
         flags=re.DOTALL,
     )
+    html_text = html_text.replace(
+        'data-i18n="quick_help">粘贴整段招聘广告可直接识别；也可以粘贴公开的职位链接。',
+        'data-i18n="offline_help">粘贴整段招聘广告可直接识别。离线版因浏览器安全限制不能读取外部链接。',
+    )
+    html_text = re.sub(
+        r'\s*<div class="url-row" id="url-fetch-row">.*?</div>',
+        "",
+        html_text,
+        count=1,
+        flags=re.DOTALL,
+    )
 
     encoded_model = json.dumps(
         model_payload,
@@ -71,7 +82,7 @@ def build() -> Path:
     )
     runtime = (
         f"<script>\n"
-        f"const JOBGUARD_MODEL = {encoded_model};\n"
+        f"window.JOBGUARD_MODEL = {encoded_model};\n"
         f"{inference_text}\n"
         f"{ui_text}\n"
         f"</script>"

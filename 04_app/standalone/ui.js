@@ -18,6 +18,13 @@
       form_eyebrow: "JOB POSTING INPUT",
       form_title: "粘贴招聘广告内容",
       required_hint: "至少填写一个文本字段",
+      quick_label: "快速粘贴",
+      quick_help: "粘贴整段招聘广告可直接识别；离线版不能访问外部链接。",
+      offline_help: "粘贴整段招聘广告可直接识别。离线版因浏览器安全限制不能读取外部链接。",
+      quick_placeholder: "在这里粘贴整段招聘广告正文……",
+      analyze_paste: "一键识别文本",
+      quick_empty: "请先粘贴招聘广告正文。",
+      quick_analysis: "已识别粘贴内容，正在评估……",
       field_title: "职位标题",
       field_company: "公司介绍",
       field_description: "职位描述",
@@ -85,6 +92,13 @@
       form_eyebrow: "JOB POSTING INPUT",
       form_title: "Paste the job-posting content",
       required_hint: "At least one text field is required",
+      quick_label: "QUICK INPUT",
+      quick_help: "Paste the full job ad for instant assessment. The offline file cannot fetch external links.",
+      offline_help: "Paste the full job ad for instant assessment. Browser security prevents the offline file from reading external URLs.",
+      quick_placeholder: "Paste the complete job-posting content here…",
+      analyze_paste: "Analyze pasted text",
+      quick_empty: "Paste the job-posting text first.",
+      quick_analysis: "Pasted text recognized. Assessing…",
       field_title: "Job title",
       field_company: "Company profile",
       field_description: "Job description",
@@ -215,6 +229,23 @@
     $$(".panel").forEach((panel) => panel.classList.toggle("active", panel.id === `panel-${name}`));
   }
 
+  function showQuickStatus(message, isError = false) {
+    const status = $("#quick-status");
+    status.textContent = message;
+    status.className = `quick-status${isError ? " error" : ""}`;
+    status.classList.remove("hidden");
+  }
+
+  function fillFormFromPastedText(text) {
+    const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+    if (lines.length > 1 && lines[0].length <= 140) {
+      $("#title").value = lines[0];
+      $("#description").value = lines.slice(1).join("\n");
+    } else {
+      $("#description").value = text;
+    }
+  }
+
   $$(".tab").forEach((tab) => {
     tab.addEventListener("click", () => setActiveTab(tab.dataset.tab));
   });
@@ -224,6 +255,8 @@
 
   function resetResult() {
     $("#assess-form").reset();
+    $("#quick-text").value = "";
+    $("#quick-status").classList.add("hidden");
     $("#result-empty").classList.remove("hidden");
     $("#result-content").classList.add("hidden");
   }
@@ -232,6 +265,17 @@
   $("#assess-again").addEventListener("click", () => {
     resetResult();
     $("#title").focus();
+  });
+
+  $("#analyze-paste").addEventListener("click", () => {
+    const text = $("#quick-text").value.trim();
+    if (!text) {
+      showQuickStatus(t("quick_empty"), true);
+      return;
+    }
+    fillFormFromPastedText(text);
+    showQuickStatus(t("quick_analysis"));
+    $("#assess-form").requestSubmit();
   });
 
   $("#assess-form").addEventListener("submit", (event) => {

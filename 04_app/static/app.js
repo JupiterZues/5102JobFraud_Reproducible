@@ -12,6 +12,17 @@ const translations = {
     form_eyebrow: "JOB POSTING INPUT",
     form_title: "粘贴招聘广告内容",
     required_hint: "至少填写一个文本字段",
+    quick_label: "快速粘贴",
+    quick_help: "粘贴整段招聘广告可直接识别；也可以粘贴公开的职位链接。",
+    quick_placeholder: "在这里粘贴整段招聘广告正文……",
+    analyze_paste: "一键识别文本",
+    url_placeholder: "粘贴公开的职位链接（http:// 或 https://）",
+    fetch_url: "读取招聘链接",
+    quick_empty: "请先粘贴招聘广告正文。",
+    quick_analysis: "已识别粘贴内容，正在评估……",
+    url_reading: "正在读取招聘页面……",
+    url_success: "已读取页面文本，正在评估……",
+    url_failed: "链接读取失败，请粘贴正文后重试。",
     field_title: "职位标题",
     field_company: "公司介绍",
     field_description: "职位描述",
@@ -84,6 +95,17 @@ const translations = {
     form_eyebrow: "JOB POSTING INPUT",
     form_title: "Paste the job-posting content",
     required_hint: "At least one text field is required",
+    quick_label: "QUICK INPUT",
+    quick_help: "Paste the full job ad for instant assessment, or use a public job URL.",
+    quick_placeholder: "Paste the complete job-posting content here…",
+    analyze_paste: "Analyze pasted text",
+    url_placeholder: "Paste a public job URL (http:// or https://)",
+    fetch_url: "Read job URL",
+    quick_empty: "Paste the job-posting text first.",
+    quick_analysis: "Pasted text recognized. Assessing…",
+    url_reading: "Reading the job page…",
+    url_success: "Page text loaded. Assessing…",
+    url_failed: "Could not read that URL. Paste the page text instead.",
     field_title: "Job title",
     field_company: "Company profile",
     field_description: "Job description",
@@ -207,6 +229,23 @@ function setActiveTab(name) {
   $$(".panel").forEach((panel) => panel.classList.toggle("active", panel.id === `panel-${name}`));
 }
 
+function showQuickStatus(message, isError = false) {
+  const status = $("#quick-status");
+  status.textContent = message;
+  status.className = `quick-status${isError ? " error" : ""}`;
+  status.classList.remove("hidden");
+}
+
+function fillFormFromPastedText(text) {
+  const lines = text.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (lines.length > 1 && lines[0].length <= 140) {
+    $("#title").value = lines[0];
+    $("#description").value = lines.slice(1).join("\n");
+  } else {
+    $("#description").value = text;
+  }
+}
+
 $$(".tab").forEach((tab) => {
   tab.addEventListener("click", () => setActiveTab(tab.dataset.tab));
 });
@@ -217,15 +256,62 @@ $$(".lang-btn").forEach((button) => {
 
 $("#clear-form").addEventListener("click", () => {
   $("#assess-form").reset();
+  $("#quick-text").value = "";
+  $("#quick-status").classList.add("hidden");
   $("#result-empty").classList.remove("hidden");
   $("#result-content").classList.add("hidden");
 });
 
 $("#assess-again").addEventListener("click", () => {
   $("#assess-form").reset();
+  $("#quick-text").value = "";
+  $("#quick-status").classList.add("hidden");
   $("#result-empty").classList.remove("hidden");
   $("#result-content").classList.add("hidden");
   $("#title").focus();
+});
+
+$("#analyze-paste").addEventListener("click", () => {
+  const text = $("#quick-text").value.trim();
+  if (!text) {
+    showQuickStatus(t("quick_empty"), true);
+    return;
+  }
+  fillFormFromPastedText(text);
+  showQuickStatus(t("quick_analysis"));
+  $("#assess-form").requestSubmit();
+});
+
+$("#fetch-url").addEventListener("click", async () => {
+  const url = $("#job-url").value.trim();
+  if (!/^https?:\/\//i.test(url)) {
+    showQuickStatus(t("url_failed"), true);
+    return;
+  }
+
+  const button = $("#fetch-url");
+  button.disabled = true;
+  showQuickStatus(t("url_reading"));
+  try {
+    const response = await fetch("/api/fetch-url", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || "URL fetch failed");
+    $("#title").value = data.title || "";
+    $("#company_profile").value = data.company_profile || "";
+    $("#description").value = data.description || "";
+    $("#requirements").value = "";
+    $("#benefits").value = "";
+    showQuickStatus(t("url_success"));
+    $("#assess-form").requestSubmit();
+  } catch (error) {
+    showQuickStatus(`${t("url_failed")} ${error.message}`, true);
+  } finally {
+    button.disabled = false;
+  }
 });
 
 $("#assess-form").addEventListener("submit", async (event) => {

@@ -91,6 +91,28 @@
               <span class="required-hint" data-i18n="required_hint">至少填写一个文本字段</span>
             </div>
 
+            <div class="quick-entry">
+              <div class="quick-entry-head">
+                <div>
+                  <span class="quick-label" data-i18n="quick_label">快速粘贴</span>
+                  <p data-i18n="quick_help">粘贴整段招聘广告可直接识别；也可以粘贴公开的职位链接。</p>
+                </div>
+              </div>
+              <div class="quick-row">
+                <textarea id="quick-text" rows="4" data-placeholder="quick_placeholder"></textarea>
+                <button id="analyze-paste" class="secondary-btn solid" type="button" data-i18n="analyze_paste">
+                  一键识别文本
+                </button>
+              </div>
+              <div class="url-row" id="url-fetch-row">
+                <input id="job-url" type="url" data-placeholder="url_placeholder" autocomplete="off">
+                <button id="fetch-url" class="secondary-btn solid" type="button" data-i18n="fetch_url">
+                  读取招聘链接
+                </button>
+              </div>
+              <p id="quick-status" class="quick-status hidden"></p>
+            </div>
+
             <div class="field-grid two-col">
               <label class="field">
                 <span data-i18n="field_title">职位标题</span>
