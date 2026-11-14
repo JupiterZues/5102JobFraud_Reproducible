@@ -170,6 +170,11 @@ async def predict(payload: PredictionRequest) -> dict:
     return {
         "score": score,
         "priority": PRIORITY_CODES[priority],
+        "review_flag": (
+            "priority_review"
+            if score >= float(detector.thresholds["top_5pct"])
+            else "no_priority_flag"
+        ),
         "thresholds": detector.thresholds,
     }
 

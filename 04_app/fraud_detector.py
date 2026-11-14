@@ -117,6 +117,11 @@ class FraudDetector:
 
         scores = self.score_texts(texts)
         data["risk_score"] = scores
+        data["review_flag"] = np.where(
+            scores >= float(self.thresholds["top_5pct"]),
+            "priority_review",
+            "no_priority_flag",
+        )
         data["priority"] = [self.priority(float(score)) for score in scores]
         data["priority_order"] = data["priority"].map(PRIORITY_ORDER)
         data = data.sort_values(

@@ -39,6 +39,12 @@ const translations = {
     result_empty_text: "结果将显示风险排序分数和人工审核队列建议。",
     result_eyebrow: "REVIEW PRIORITY",
     result_score_label: "风险排序分数",
+    verdict_priority_title: "结论：建议优先人工核查",
+    verdict_priority_text: "该广告进入模型前 5% 的高风险审核队列。这不等于已确认诈骗，仍需人工核实公司、链接和联系方式。",
+    verdict_clear_title: "结论：暂未进入优先审核队列",
+    verdict_clear_text: "该广告未达到前 5% 阈值，但不代表绝对安全。可根据团队容量进一步检查前 10% 或 20% 名单。",
+    review_priority: "优先复查",
+    review_no_flag: "暂不优先",
     risk_routine: "常规",
     risk_low: "低",
     risk_medium: "中",
@@ -122,6 +128,12 @@ const translations = {
     result_empty_text: "The result will show a ranking score and suggested review queue.",
     result_eyebrow: "REVIEW PRIORITY",
     result_score_label: "Risk ranking score",
+    verdict_priority_title: "Result: priority review recommended",
+    verdict_priority_text: "This posting falls in the model's top-5% review queue. This is not a confirmed fraud finding; verify the company, links, and contacts manually.",
+    verdict_clear_title: "Result: no priority review flag",
+    verdict_clear_text: "The posting does not meet the top-5% cutoff, but this does not guarantee that it is safe. Review the top-10% or top-20% queue if capacity allows.",
+    review_priority: "Priority review",
+    review_no_flag: "No priority flag",
     risk_routine: "Routine",
     risk_low: "Low",
     risk_medium: "Medium",
@@ -196,6 +208,8 @@ function applyLanguage(language) {
   if (!$("#result-content").classList.contains("hidden")) {
     const code = $("#priority-pill").dataset.code;
     if (code) renderPriority(code);
+    const flag = $("#verdict-box").dataset.flag;
+    if (flag) renderVerdict(flag);
   }
   if (batchRows.length) {
     renderBatchTable();
@@ -208,6 +222,19 @@ function renderPriority(code) {
   pill.dataset.code = code;
   pill.className = `priority-pill ${code}`;
   pill.textContent = t(`priority_${code}`);
+}
+
+function renderVerdict(flag) {
+  const box = $("#verdict-box");
+  const isPriority = flag === "priority_review";
+  box.dataset.flag = flag;
+  box.className = `verdict-box${isPriority ? "" : " clear"}`;
+  $("#verdict-title").textContent = t(
+    isPriority ? "verdict_priority_title" : "verdict_clear_title"
+  );
+  $("#verdict-text").textContent = t(
+    isPriority ? "verdict_priority_text" : "verdict_clear_text"
+  );
 }
 
 function renderThresholds() {
@@ -340,6 +367,7 @@ $("#assess-form").addEventListener("submit", async (event) => {
     $("#result-empty").classList.add("hidden");
     $("#result-content").classList.remove("hidden");
     renderPriority(data.priority);
+    renderVerdict(data.review_flag);
     $("#score-value").textContent = Number(data.score).toFixed(3);
 
     const min = meta.score_range.min;
@@ -410,7 +438,7 @@ async function uploadBatch(file) {
 
 function displayColumns(columns) {
   const preferred = [
-    "review_rank", "job_id", "title", "risk_score", "priority",
+    "review_rank", "job_id", "title", "risk_score", "review_flag", "priority",
     "description", "company_profile", "requirements", "benefits",
   ];
   const ordered = preferred.filter((column) => columns.includes(column));
@@ -429,6 +457,9 @@ function renderBatchTable() {
     <tr>${columns.map((column) => {
       let value = row[column] ?? "";
       if (column === "risk_score") value = Number(value).toFixed(3);
+      if (column === "review_flag") {
+        value = t(value === "priority_review" ? "review_priority" : "review_no_flag");
+      }
       if (column === "priority" || column === "priority_code") {
         const code = row.priority_code || priorityCode(row.priority);
         value = t(`priority_${code}`);

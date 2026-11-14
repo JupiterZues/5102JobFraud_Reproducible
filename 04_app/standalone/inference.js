@@ -75,7 +75,12 @@
       const text = combineFields(record);
       if (!text) throw new Error("EMPTY_TEXT");
       const score = scoreText(text);
-      return { score, priority: priority(score) };
+      const priorityCode = priority(score);
+      return {
+        score,
+        priority: priorityCode,
+        review_flag: priorityCode === "high" ? "priority_review" : "no_priority_flag",
+      };
     }
 
     function scoreRows(headers, rows) {
@@ -83,7 +88,13 @@
         const record = Object.fromEntries(headers.map((header, index) => [header, row[index] ?? ""]));
         const score = scoreText(combineFields(record));
         if (score === null) throw new Error("EMPTY_TEXT");
-        return { ...record, risk_score: score, priority_code: priority(score) };
+        const priorityCode = priority(score);
+        return {
+          ...record,
+          risk_score: score,
+          review_flag: priorityCode === "high" ? "priority_review" : "no_priority_flag",
+          priority_code: priorityCode,
+        };
       }).sort((left, right) => right.risk_score - left.risk_score)
         .map((row, index) => ({ review_rank: index + 1, ...row }));
     }
