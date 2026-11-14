@@ -26,6 +26,9 @@ bash 04_app/run_web.sh
 
 Then open `http://localhost:8501`.
 
+The server inlines CSS and JavaScript into the main page, so a failed separate
+asset request does not leave the application as unstyled text.
+
 ## Run the CLI
 
 One posting:

@@ -14,7 +14,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from bs4.element import Tag
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse, JSONResponse, PlainTextResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -305,9 +305,23 @@ def extract_job_posting(page: str) -> dict:
     }
 
 
-@app.get("/", include_in_schema=False)
-async def index() -> FileResponse:
-    return FileResponse(STATIC_DIR / "index.html")
+@app.get("/", include_in_schema=False, response_class=HTMLResponse)
+async def index() -> HTMLResponse:
+    html_text = (STATIC_DIR / "index.html").read_text(encoding="utf-8")
+    css_text = (STATIC_DIR / "styles.css").read_text(encoding="utf-8")
+    js_text = (STATIC_DIR / "app.js").read_text(encoding="utf-8")
+    html_text = html_text.replace(
+        '<link rel="stylesheet" href="/assets/styles.css">',
+        f"<style>\n{css_text}\n</style>",
+    )
+    html_text = html_text.replace(
+        '<script src="/assets/app.js"></script>',
+        f"<script>\n{js_text}\n</script>",
+    )
+    return HTMLResponse(
+        html_text,
+        headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+    )
 
 
 @app.get("/favicon.ico", include_in_schema=False)

@@ -21,6 +21,15 @@ def test_health() -> None:
     assert response.json() == {"status": "ok"}
 
 
+def test_root_inlines_frontend_assets() -> None:
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "<style>" in response.text
+    assert "<script>" in response.text
+    assert "/assets/styles.css" not in response.text
+    assert "/assets/app.js" not in response.text
+
+
 def test_single_prediction() -> None:
     response = client.post(
         "/api/predict",
