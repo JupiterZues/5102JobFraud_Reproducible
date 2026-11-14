@@ -175,13 +175,13 @@ See `data/README.md` for the source and regeneration instructions.
 
 ## Interactive demo
 
-`04_app/` contains a small Streamlit application for single-posting and batch
-CSV ranking. The app loads the frozen model and presents the score as a review
-priority rather than a probability.
+`04_app/` contains a small bilingual FastAPI + HTML application for
+single-posting and batch CSV ranking. The app loads the frozen model and
+presents the score as a review priority rather than a probability.
 
 ```bash
 pip install -r 04_app/requirements.txt
-streamlit run 04_app/app.py
+bash 04_app/run_web.sh
 ```
 
 The command-line interface is available at `04_app/cli.py`.

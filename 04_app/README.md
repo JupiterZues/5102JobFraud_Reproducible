@@ -1,7 +1,7 @@
 # Job Fraud Review Assistant
 
-A small local application that loads the frozen Linear SVM model and ranks job
-postings for human review.
+A bilingual HTML/CSS/JavaScript application backed by FastAPI. It loads the
+frozen Linear SVM model and ranks job postings for human review.
 
 ## Features
 
@@ -9,6 +9,7 @@ postings for human review.
 - Show a review priority based on validation-set top-k cutoffs.
 - Upload a batch CSV and download ranked results.
 - Command-line scoring for one text or a CSV.
+- Switch the complete interface between Chinese and English.
 
 The score is a ranking value, not a calibrated probability.
 
@@ -18,10 +19,10 @@ From the repository root:
 
 ```bash
 pip install -r 04_app/requirements.txt
-streamlit run 04_app/app.py
+bash 04_app/run_web.sh
 ```
 
-Then open the URL printed by Streamlit, normally `http://localhost:8501`.
+Then open `http://localhost:8501`.
 
 ## Run the CLI
 

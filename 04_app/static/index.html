@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Bilingual human-in-the-loop job fraud review assistant">
+  <title>JobGuard | Fraud Review Assistant</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <a class="brand" href="#">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" role="img">
+            <path d="M16 3 27 7v8c0 7-4.7 11.7-11 14C9.7 26.7 5 22 5 15V7l11-4Z" fill="none" stroke="currentColor" stroke-width="2"/>
+            <path d="m11 16 3.1 3.1L21 12.3" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <span>
+          <strong>JOBGUARD</strong>
+          <small>Fraud review lab</small>
+        </span>
+      </a>
+      <div class="language-switch" role="group" aria-label="Language">
+        <button class="lang-btn active" data-lang="zh" type="button">中文</button>
+        <button class="lang-btn" data-lang="en" type="button">EN</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow" data-i18n="hero_eyebrow">HUMAN-IN-THE-LOOP SCREENING</p>
+          <h1 data-i18n="hero_title">把有限的人工审核时间，用在最可疑的招聘广告上。</h1>
+          <p class="hero-text" data-i18n="hero_text">
+            基于招聘文本的机器学习排序工具。它不是自动判决系统，而是帮助审核团队建立风险队列。
+          </p>
+          <div class="metric-strip">
+            <div class="metric">
+              <strong>0.947</strong>
+              <span data-i18n="metric_test_ap">测试集 PR-AUC</span>
+            </div>
+            <div class="metric">
+              <strong>88.7%</strong>
+              <span data-i18n="metric_recall">前 5% 审核召回率</span>
+            </div>
+            <div class="metric">
+              <strong>15,716</strong>
+              <span data-i18n="metric_records">冻结训练数据</span>
+            </div>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="radar-grid"></div>
+          <div class="risk-orbit orbit-one"></div>
+          <div class="risk-orbit orbit-two"></div>
+          <div class="risk-core">
+            <span>RISK</span>
+            <strong>TOP 5%</strong>
+            <small>REVIEW QUEUE</small>
+          </div>
+          <span class="floating-label label-a">PR-AUC</span>
+          <span class="floating-label label-b">HUMAN REVIEW</span>
+        </div>
+      </section>
+
+      <nav class="tabs" aria-label="Application sections">
+        <button class="tab active" data-tab="assess" type="button">
+          <span class="tab-index">01</span>
+          <span data-i18n="tab_single">单条评估</span>
+        </button>
+        <button class="tab" data-tab="batch" type="button">
+          <span class="tab-index">02</span>
+          <span data-i18n="tab_batch">批量审核</span>
+        </button>
+        <button class="tab" data-tab="method" type="button">
+          <span class="tab-index">03</span>
+          <span data-i18n="tab_method">方法与边界</span>
+        </button>
+      </nav>
+
+      <section id="panel-assess" class="panel active">
+        <div class="workspace">
+          <form id="assess-form" class="form-card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow" data-i18n="form_eyebrow">JOB POSTING INPUT</p>
+                <h2 data-i18n="form_title">粘贴招聘广告内容</h2>
+              </div>
+              <span class="required-hint" data-i18n="required_hint">至少填写一个文本字段</span>
+            </div>
+
+            <div class="field-grid two-col">
+              <label class="field">
+                <span data-i18n="field_title">职位标题</span>
+                <input id="title" name="title" type="text" data-placeholder="title_placeholder" autocomplete="off">
+              </label>
+              <label class="field">
+                <span data-i18n="field_company">公司介绍</span>
+                <input id="company_profile" name="company_profile" type="text" data-placeholder="company_placeholder" autocomplete="off">
+              </label>
+            </div>
+            <label class="field">
+              <span data-i18n="field_description">职位描述</span>
+              <textarea id="description" name="description" rows="6" data-placeholder="description_placeholder"></textarea>
+            </label>
+            <div class="field-grid two-col">
+              <label class="field">
+                <span data-i18n="field_requirements">职位要求</span>
+                <textarea id="requirements" name="requirements" rows="4" data-placeholder="requirements_placeholder"></textarea>
+              </label>
+              <label class="field">
+                <span data-i18n="field_benefits">福利信息</span>
+                <textarea id="benefits" name="benefits" rows="4" data-placeholder="benefits_placeholder"></textarea>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button id="assess-submit" class="primary-btn" type="submit">
+                <span data-i18n="assess_button">评估审核优先级</span>
+                <span class="arrow" aria-hidden="true">→</span>
+              </button>
+              <button id="clear-form" class="text-btn" type="button" data-i18n="clear_button">清空</button>
+            </div>
+          </form>
+
+          <aside class="result-card" aria-live="polite">
+            <div class="result-empty" id="result-empty">
+              <div class="empty-icon">
+                <svg viewBox="0 0 48 48" aria-hidden="true">
+                  <circle cx="21" cy="21" r="12" fill="none" stroke="currentColor" stroke-width="2"/>
+                  <path d="m30 30 9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <h3 data-i18n="result_empty_title">等待评估</h3>
+              <p data-i18n="result_empty_text">结果将显示风险排序分数和人工审核队列建议。</p>
+            </div>
+            <div class="result-content hidden" id="result-content">
+              <p class="eyebrow" data-i18n="result_eyebrow">REVIEW PRIORITY</p>
+              <div id="priority-pill" class="priority-pill"></div>
+              <div class="score-line">
+                <span data-i18n="result_score_label">风险排序分数</span>
+                <strong id="score-value">0.000</strong>
+              </div>
+              <div class="risk-meter">
+                <div class="risk-track"></div>
+                <div id="risk-marker" class="risk-marker"></div>
+              </div>
+              <div class="risk-labels">
+                <span data-i18n="risk_routine">常规</span>
+                <span data-i18n="risk_low">低</span>
+                <span data-i18n="risk_medium">中</span>
+                <span data-i18n="risk_high">高</span>
+              </div>
+              <p class="result-note" data-i18n="result_note">
+                分数用于相对排序，不是概率，也不能单独作为诈骗结论。
+              </p>
+              <button id="assess-again" class="secondary-btn" type="button" data-i18n="assess_again">
+                评估另一条广告
+              </button>
+            </div>
+          </aside>
+        </div>
+        <div class="boundary-note">
+          <strong data-i18n="boundary_title">人工决策边界</strong>
+          <span data-i18n="boundary_text">模型只负责排序。最终判断应结合公司资质、域名、联系方式和历史投诉。</span>
+        </div>
+      </section>
+
+      <section id="panel-batch" class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow" data-i18n="batch_eyebrow">BATCH TRIAGE</p>
+            <h2 data-i18n="batch_title">批量生成审核队列</h2>
+            <p class="section-copy" data-i18n="batch_copy">上传 CSV，模型会按风险分数排序并生成可下载结果。</p>
+          </div>
+          <a class="secondary-btn compact" href="/api/sample.csv" data-i18n="sample_download">下载示例 CSV</a>
+        </div>
+        <div class="upload-zone" id="upload-zone">
+          <input id="csv-file" type="file" accept=".csv,text/csv" hidden>
+          <div class="upload-icon">CSV</div>
+          <h3 data-i18n="upload_title">拖入文件或点击选择</h3>
+          <p data-i18n="upload_text">支持 job_id、title、company_profile、description、requirements、benefits 列。</p>
+          <button id="choose-file" class="secondary-btn" type="button" data-i18n="choose_file">选择 CSV</button>
+        </div>
+        <div id="batch-status" class="batch-status hidden"></div>
+        <div id="batch-results" class="table-card hidden">
+          <div class="table-toolbar">
+            <div>
+              <p class="eyebrow" data-i18n="batch_result_eyebrow">RANKED RESULTS</p>
+              <h3 id="batch-summary"></h3>
+            </div>
+            <button id="download-results" class="primary-btn compact" type="button" data-i18n="download_results">下载结果 CSV</button>
+          </div>
+          <div class="table-scroll">
+            <table id="results-table">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="panel-method" class="panel">
+        <div class="method-grid">
+          <article class="method-card">
+            <span class="method-number">01</span>
+            <h3 data-i18n="method_1_title">文本转为特征</h3>
+            <p data-i18n="method_1_text">标题、公司介绍、职位描述、要求和福利被合并，并转换为 TF-IDF 一元词与二元词特征。</p>
+          </article>
+          <article class="method-card">
+            <span class="method-number">02</span>
+            <h3 data-i18n="method_2_title">线性模型排序</h3>
+            <p data-i18n="method_2_text">Linear SVM 输出风险排序分数。模型根据验证集表现选择，而不是根据测试集反复调参。</p>
+          </article>
+          <article class="method-card">
+            <span class="method-number">03</span>
+            <h3 data-i18n="method_3_title">固定审核预算</h3>
+            <p data-i18n="method_3_text">按 top 5%、10%、20% 建立审核队列，衡量有限人工时间能发现多少欺诈广告。</p>
+          </article>
+          <article class="method-card accent">
+            <span class="method-number">!</span>
+            <h3 data-i18n="method_4_title">不是概率，也不是判决</h3>
+            <p data-i18n="method_4_text">SVM 分数没有经过概率校准。模型基于历史英文数据，不能替代人工调查或法律判断。</p>
+          </article>
+        </div>
+        <div class="threshold-panel">
+          <div>
+            <p class="eyebrow" data-i18n="threshold_eyebrow">VALIDATION CUTOFFS</p>
+            <h2 data-i18n="threshold_title">审核优先级阈值</h2>
+          </div>
+          <div id="threshold-cards" class="threshold-cards"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>Group 17 · DSAI5102</span>
+      <span data-i18n="footer_text">仅供课程演示与人工审核辅助</span>
+    </footer>
+  </div>
+
+  <script src="/assets/app.js"></script>
+</body>
+</html>

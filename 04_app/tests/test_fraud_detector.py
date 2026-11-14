@@ -8,7 +8,6 @@ APP_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(APP_DIR))
 
 from fraud_detector import FraudDetector, combine_text
-from streamlit.testing.v1 import AppTest
 
 
 def test_combine_text_uses_training_order() -> None:
@@ -57,9 +56,3 @@ def test_empty_record_is_rejected() -> None:
     detector = FraudDetector()
     with pytest.raises(ValueError):
         detector.score_record({"description": "   "})
-
-
-def test_streamlit_app_loads() -> None:
-    app = AppTest.from_file(str(APP_DIR / "app.py"), default_timeout=20)
-    app.run()
-    assert not app.exception
