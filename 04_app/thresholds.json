@@ -1,0 +1,10 @@
+{
+  "description": "Validation-set score cutoffs for the selected Linear SVM review-capacity bands. These are ranking cutoffs, not probabilities.",
+  "validation_rows": 2357,
+  "validation_positives": 106,
+  "validation_cutoffs": {
+    "top_5pct": -0.3150030305089278,
+    "top_10pct": -0.6579094480790721,
+    "top_20pct": -0.8781170679991781
+  }
+}

@@ -47,6 +47,14 @@ DSAI5102_JobFraud_Reproducible_Workpack/
     README.md
     scripts/
     outputs/
+  04_app/
+    README.md
+    app.py
+    cli.py
+    fraud_detector.py
+    thresholds.json
+    sample_jobs.csv
+    tests/
 ```
 
 ## Final deliverables
@@ -164,6 +172,19 @@ See `data/README.md` for the source and regeneration instructions.
 - `03_evaluation/outputs/test_error_cases.csv`
 - `03_evaluation/outputs/figures/test_pr_curve.png`
 - `03_evaluation/outputs/figures/top_features.png`
+
+## Interactive demo
+
+`04_app/` contains a small Streamlit application for single-posting and batch
+CSV ranking. The app loads the frozen model and presents the score as a review
+priority rather than a probability.
+
+```bash
+pip install -r 04_app/requirements.txt
+streamlit run 04_app/app.py
+```
+
+The command-line interface is available at `04_app/cli.py`.
 
 ## Data source
 

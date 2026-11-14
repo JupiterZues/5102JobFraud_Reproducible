@@ -12,3 +12,7 @@ data/processed/*
 # Local editor and OS artifacts.
 .idea/
 .vscode/
+
+# Local Streamlit secrets and generated app outputs.
+.streamlit/secrets.toml
+04_app/*_ranked.csv
